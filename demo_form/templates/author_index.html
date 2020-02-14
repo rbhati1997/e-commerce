@@ -1,0 +1,28 @@
+{% block content %}
+
+<a href="{% url 'add-author' %}"> Add Author</a>
+
+<table>
+    <tr>
+        <td> # </td>
+        <td> Author </td>
+        <td> View Books </td>
+        <td> Add Book </td>
+    </tr>
+{% for author in authors %}
+    <tr>
+        <td> {{author.id}}</td>
+        <td> {{author.name}} </td>
+        <td> <a href="{% url 'book-list' author.id %}" > View Books </a> </td>
+        <td> <a href="{% url 'add-book' %}" > Add Book </a> </td>
+    </tr>
+{% endfor %}
+</table>
+
+
+
+
+
+
+
+{% endblock %}

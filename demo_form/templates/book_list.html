@@ -1,0 +1,30 @@
+{% block content %}
+
+<a href="{% url 'author-list' %}"> Dashboard </a>
+
+<h1> {{books.0.author.name}} </h1>
+
+<table>
+    <tr>
+        <td> # </td>
+        <td> Book Title </td>
+        <td> Edit Book </td>
+        <td> Delete Book </td>
+    </tr>
+{% for book in books %}
+    <tr>
+        <td> {{book.id}}</td>
+        <td> {{book.name}} </td>
+        <td> <a href="#" > Edit Books </a> </td>
+        <td> <a href="#" > Delete Book </a> </td>
+    </tr>
+{% endfor %}
+</table>
+
+
+
+
+
+
+
+{% endblock %}
