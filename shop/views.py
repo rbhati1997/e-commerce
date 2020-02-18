@@ -15,7 +15,8 @@ def product_grid(request):
     product_list = Product.objects.all()
     if 'search' in request.GET:
         search_term = request.GET['search']
-        product_list = product_list.filter(name__icontains=search_term , category__icontains=search_term, description__icontains=search_term)
+        product_list = product_list.filter(name__icontains=search_term, category__icontains=search_term,
+                                           description__icontains=search_term)
     paginator1 = Paginator(product_list, 3)
     page_number = request.GET.get('page')
     if page_number:
@@ -26,7 +27,6 @@ def product_grid(request):
 
 
 def product_detail(request, pk):
-
     product = Product.objects.get(pk=pk)
     return render(request, 'product_detail1.html', {'product': product})
 
@@ -44,7 +44,8 @@ def add_product_cart(request, product_id=None):
         product = Product.objects.get(pk=product_id)
         cart_product = Cart.objects.create(customer_user=user)
         cart_product.product.add(product)
-    cart_product_list = Product.objects.filter(cart__customer_user_id =user.id)
+    cart_product_list = Product.objects.filter(cart__customer_user_id=user.id)
+
     for cart_product in cart_product_list:
         price += int(cart_product.price)
     context = {
@@ -79,18 +80,21 @@ def checkout(request):
         email = request.POST['email']
         postal_code = request.POST['zip']
         city = request.POST['city']
-        delivery_address = DeliveryAddress.objects.create(customer_user=user, full_name=full_name, address=address, email=email, postal_code=postal_code, city=city)
+        delivery_address = DeliveryAddress.objects.create(customer_user=user, full_name=full_name, address=address,
+                                                          email=email, postal_code=postal_code, city=city)
         request.session['delivery_address_id'] = delivery_address.id
         return HttpResponseRedirect(reverse('orders'))
     return render(request, 'checkout.html')
 
 
-def add_orders(request):
+def add_orders(request, order_id=None):
     """
     Function to add order.
+    :param order_id:
     :param request:
     :return:
     """
+
     price = 0
     user = User.objects.get(pk=request.user.id)
     carts = Cart.objects.filter(customer_user=user)
@@ -99,17 +103,49 @@ def add_orders(request):
     cart_checkout.save()
     delivery_address_id = request.session.get('delivery_address_id')
     delivery_address = DeliveryAddress.objects.get(pk=delivery_address_id)
-    Order.objects.create(customer_user=user, delivery_address=delivery_address, cart=cart_checkout)
+    if not order_id:
+        Order.objects.create(customer_user=user, delivery_address=delivery_address, cart=cart_checkout)
     for cart_product in cart_checkout.cart.all():
         product_price = cart_product.product.all()[0].price
         price += int(product_price)
     orders = Order.objects.all()
     context = {
         "order": orders,
-        'price': price,
     }
 
     return render(request, 'orders.html', context=context)
+
+
+def delete_orders(request, order_id=None):
+    """
+    Function to delete order.
+    :param order_id:
+    :param request:
+    :return:
+    """
+    if order_id:
+        order = Order.objects.get(pk=order_id)
+        order.delete()
+    else:
+        Order.objects.all().delete()
+    return HttpResponseRedirect(reverse('orders_id', args=[1]))
+
+
+def order_detail(request, order_id):
+    price = 0
+    order = Order.objects.get(pk=order_id)
+    carts = order.cart.cart.all()
+    product_list = []
+    for cart in carts:
+        for product in cart.product.all():
+            product_list.append(product)
+    for cart_product in product_list:
+        price += int(cart_product.price)
+    context = {
+        "cart_product": product_list,
+        "cart_products_price": price
+    }
+    return render(request, 'cart1.html', context)
 
 
 def product_add(request):
