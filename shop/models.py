@@ -84,10 +84,16 @@ class Cart(models.Model):
         return self.uuid
 
 
+class CartCheckout(models.Model):
+    cart = models.ManyToManyField(Cart)
+
+
 class DeliveryAddress(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4().int >> 81, editable=False)
     customer_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='delivery_customer_user')
+    full_name = models.CharField(max_length=250, null=True)
     address = models.CharField(max_length=250, null=True)
+    email = models.EmailField(null=True)
     postal_code = models.CharField(max_length=20, null=True)
     city = models.CharField(max_length=100, null=True)
 
@@ -98,23 +104,24 @@ class DeliveryAddress(models.Model):
 class Order(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4().int >> 81, editable=False)
     customer_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='order_customer_user')
-    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='order_cart', blank=True, null=True)
+    cart = models.ForeignKey(CartCheckout, on_delete=models.CASCADE, related_name='order_cart', blank=True, null=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='order_product', blank=True, null=True)
     quantity = models.IntegerField(default=0)
     delivery_address = models.ForeignKey(DeliveryAddress, on_delete=models.CASCADE)
+    date_added = models.DateTimeField(auto_now_add=True, null=True)
 
-    def save(self, **kwargs):
-        if self.customer_user.user_type == 'S':
-            raise ValidationError({'error': 'Seller not able to add product in cart.'})
-
-        if self.cart and self.product:
-            raise ValidationError({'error': 'Please provide any one between cart_id and product.'})
-        elif self.cart and not self.product:
-            if self.quantity > 0:
-                raise ValidationError({'error': 'Cant give quantity when purchasing from cart.'})
-            super().save(**kwargs)
-        elif self.product and not self.cart:
-            super().save(**kwargs)
+    # def save(self, **kwargs):
+    #     if self.customer_user.user_type == 'S':
+    #         raise ValidationError({'error': 'Seller not able to add product in cart.'})
+    #
+    #     if self.cart and self.product:
+    #         raise ValidationError({'error': 'Please provide any one between cart_id and product.'})
+    #     elif self.cart and not self.product:
+    #         if self.quantity > 0:
+    #             raise ValidationError({'error': 'Cant give quantity when purchasing from cart.'})
+    #         super().save(**kwargs)
+    #     elif self.product and not self.cart:
+    #         super().save(**kwargs)
 
     def __int__(self):
         return self.uuid
