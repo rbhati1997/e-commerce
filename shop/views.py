@@ -5,10 +5,16 @@ from django.urls import reverse
 from django.views.generic import TemplateView
 from django.core.paginator import Paginator
 from .models import Product, Cart, CustomUser, DeliveryAddress, Order, CartCheckout
+from django.conf import settings # new
 
 
-class Home(TemplateView):
-    template_name = 'product_detail1.html'
+class Payment(TemplateView):
+    template_name = 'payment.html'
+
+    def get_context_data(self, **kwargs):  # new
+        context = super().get_context_data(**kwargs)
+        context['key'] = settings.STRIPE_PUBLISHABLE_KEY
+        return context
 
 
 def product_grid(request):
@@ -72,7 +78,7 @@ def checkout(request):
     :param request:
     :return:
     """
-
+    price = 0
     user = User.objects.get(pk=request.user.id)
     if request.method == "POST":
         full_name = request.POST['firstname']
@@ -83,8 +89,15 @@ def checkout(request):
         delivery_address = DeliveryAddress.objects.create(customer_user=user, full_name=full_name, address=address,
                                                           email=email, postal_code=postal_code, city=city)
         request.session['delivery_address_id'] = delivery_address.id
-        return HttpResponseRedirect(reverse('orders'))
-    return render(request, 'checkout.html')
+        return HttpResponseRedirect(reverse('payment_page'))
+    cart_product_list = Product.objects.filter(cart__customer_user_id=user.id)
+    for cart_product in cart_product_list:
+        price += int(cart_product.price)
+    context = {
+        "cart_product": cart_product_list,
+        "cart_products_price": price
+    }
+    return render(request, 'checkout.html', context)
 
 
 def add_orders(request, order_id=None):
@@ -94,7 +107,6 @@ def add_orders(request, order_id=None):
     :param request:
     :return:
     """
-
     price = 0
     user = User.objects.get(pk=request.user.id)
     carts = Cart.objects.filter(customer_user=user)

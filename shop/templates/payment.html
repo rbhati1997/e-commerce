@@ -1,0 +1,24 @@
+{% extends "index.html" %}
+<!DOCTYPE html>
+{%load staticfiles%}<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+{%block home%}
+
+
+<h2>Make your payment here:</h2>
+<form action="{% url 'orders' %}" method="post">
+  {% csrf_token %}
+  <script src="https://checkout.stripe.com/checkout.js" class="stripe-button"
+          data-key="{{ key }}"
+          data-description="A Django Charge"
+          data-amount="500"
+          data-locale="auto"></script>
+</form>
+
+ {% endblock%}
+</body>
+</html>

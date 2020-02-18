@@ -159,3 +159,8 @@ LOGOUT_REDIRECT_URL = 'login.html'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
+
+# For payments.
+STRIPE_SECRET_KEY = 'sk_test_XgDOobgEyZEeZmhTWH37xx9I00QsBJgvwc'
+STRIPE_PUBLISHABLE_KEY = 'pk_test_QotEYQa2iDZDR4u2i7pwtcuu00Q6fJncVJ'
+
