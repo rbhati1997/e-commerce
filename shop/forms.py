@@ -1,14 +1,31 @@
-# from allauth.account.forms import LoginForm, SignupForm
-# from django import forms
+from allauth.account.forms import LoginForm, SignupForm
+from django import forms
+
+from shop.models import MyUser
+
+
+class CustomSignupForm(SignupForm):
+    TYPE_CHOICE = (
+        ('A', 'Admin'),
+        ('S', 'Seller'),
+        ('C', 'Customer')
+    )
+    user_type = forms.ChoiceField(widget=forms.Select, choices=TYPE_CHOICE)
+
+    def save(self, request):
+        user = super(CustomSignupForm, self).save(request)
+        user.save()
+        custom_user = MyUser(user_type=self.cleaned_data['user_type'], user=user)
+        # import pdb;pdb.set_trace()
+        custom_user.save()
+        return user
+
+
+# from shop.models import DeliveryAddress
 #
-# from shop.models import CustomUser
 #
+# class DeliveryAddressForm(forms.ModelForm):
 #
-# class SignupForm(forms.Form):
-#     first_name = forms.CharField(max_length=30, label='Voornaam')
-#     last_name = forms.CharField(max_length=30, label='Achternaam')
-#
-#     def signup(self, request, user):
-#         user.first_name = self.cleaned_data['first_name']
-#         user.last_name = self.cleaned_data['last_name']
-#         user.save()
+#     class Meta:
+#         model = DeliveryAddress
+#         fields = "__all__"

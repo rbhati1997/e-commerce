@@ -164,3 +164,7 @@ MEDIA_URL = '/media/'
 STRIPE_SECRET_KEY = 'sk_test_XgDOobgEyZEeZmhTWH37xx9I00QsBJgvwc'
 STRIPE_PUBLISHABLE_KEY = 'pk_test_QotEYQa2iDZDR4u2i7pwtcuu00Q6fJncVJ'
 
+ACCOUNT_FORMS = {
+    'signup': 'shop.forms.CustomSignupForm',
+}
+
