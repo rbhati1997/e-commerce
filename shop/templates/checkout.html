@@ -149,7 +149,7 @@ span.price {
     <div class="container">
       <h4>Cart <span class="price" style="color:black"><i class="fa fa-shopping-cart"></i> <b>{{cart_product.count}}</b></span></h4>
       {%for product in cart_product %}
-      <p><a href="#">{{product.name}}</a> <span class="price">{{product.price}}</span></p>
+      <p><a href="#">{{product.product.name}}</a> <span class="price">{{product.product.price}}</span></p>
       {%endfor%}
       <p>Total <span class="price" style="color:black"><b>{{cart_products_price}}</b></span></p>
     </div>

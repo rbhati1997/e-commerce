@@ -1,6 +1,8 @@
 from celery import shared_task
 
+from shop.models import OrderSeller
+
 
 @shared_task
-def adding_task(x, y):
-    return x + y
+def create_seller_order(order):
+    pass

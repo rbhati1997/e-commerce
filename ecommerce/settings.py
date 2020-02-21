@@ -45,8 +45,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.github',
 
-    'demo_form',
-    'crispy_forms'
+    'crispy_forms',
+    'silk'
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
@@ -59,6 +59,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'silk.middleware.SilkyMiddleware',
 ]
 
 ROOT_URLCONF = 'ecommerce.urls'
@@ -103,12 +104,12 @@ DATABASES = {
         'USER': 'root',
         'PASSWORD': 'root',
     },
-    'users11': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'user_db',
-        'USER': 'rohit',
-        'PASSWORD': 'rohit',
-    }
+    # 'users11': {
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'NAME': 'user_db',
+    #     'USER': 'rohit',
+    #     'PASSWORD': 'rohit',
+    # }
 }
 
 # Password validation
@@ -171,6 +172,5 @@ ACCOUNT_FORMS = {
 BROKER_URL = 'redis://localhost:6379'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379'
 CELERY_ACCEPT_CONTENT = ['application/json']
-CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'UTC'
+CELERY_TASK_SERIALIZER = 'json'

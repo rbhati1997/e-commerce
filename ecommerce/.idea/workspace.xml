@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="ba7fcd4b-73f1-4902-bf30-8aac398fa4c6" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/../demo_form/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../demo_form/admin.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../demo_form/apps.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../demo_form/forms.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../demo_form/migrations/0001_initial.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../demo_form/migrations/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../demo_form/models.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../demo_form/templates/add_author.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../demo_form/templates/add_book.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../demo_form/templates/author_index.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../demo_form/templates/book_list.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../demo_form/tests.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../demo_form/urls.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../demo_form/views.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../shop/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/../shop/admin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../shop/migrations/0001_initial.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../shop/migrations/0002_auto_20200213_1349.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../shop/migrations/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../shop/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/../shop/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../shop/tasks.py" beforeDir="false" afterPath="$PROJECT_DIR$/../shop/tasks.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../shop/templates/account/signup.html" beforeDir="false" afterPath="$PROJECT_DIR$/../shop/templates/account/signup.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../shop/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/../shop/views.py" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="ProjectId" id="1Y1cuEZBkXqbBGMfdb3P3W6XWSu" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="ba7fcd4b-73f1-4902-bf30-8aac398fa4c6" name="Default Changelist" comment="" />
+      <created>1582113762320</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1582113762320</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="376" y="211" key="com.intellij.ide.util.TipDialog" timestamp="1582113766569">
+      <screen x="65" y="24" width="1301" height="744" />
+    </state>
+    <state x="376" y="211" key="com.intellij.ide.util.TipDialog/65.24.1301.744@65.24.1301.744" timestamp="1582113766569" />
+  </component>
+</project>

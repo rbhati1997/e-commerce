@@ -24,7 +24,14 @@
                     <div class="ibox">
                         <div class="ibox-title">
                             <span class="pull-right">(<strong>{{cart_product.count}}</strong>) items</span>
-                            <h5>Items in your cart</h5>
+                            <h5>
+                               {% if order_detail %}
+                                    Order detail
+                                {%else%}
+                                    Items in your cart
+                                {%endif%}
+
+                            </h5>
                         </div>
                         {% for product in cart_product %}
                         <div class="ibox-content">
@@ -36,30 +43,53 @@
                                         <td width="150" height="50">
                                             <div class="cart-product-imitation">
                                                 <div >
-                                                {% if product.image %}
-                                                <img src="{{product.image.url}}" alt="Trulli" width="120">
-                                                {% endif %}
+                                                 {% if order_detail %}
+                                                    {% if product.image %}
+                                                    <img src="{{product.image.url}}" alt="Trulli" width="120">
+                                                    {% endif %}
+                                                 {% else %}
+                                                    {% if product.product.image %}
+                                                    <img src="{{product.product.image.url}}" alt="Trulli" width="120">
+                                                    {% endif %}
+                                                 {% endif %}
                                                 </div>
                                             </div>
                                         </td>
                                         <td class="desc">
                                             <h3>
                                             <a href="#" class="text-navy">
-                                                {{product.name}}
+                                                {% if order_detail %}
+                                                    {{product.name}}
+                                                {%else%}
+                                                    {{product.product.name}}
+                                                {%endif%}
                                             </a>
                                             </h3>
                                             <dl class="small m-b-none">
                                                 <dt>Description</dt>
-                                                <dd> {{product.description}}</dd>
+                                                <dd>
+                                                 {% if order_detail %}
+                                                    {{product.description}}
+                                                {%else%}
+                                                    {{product.product.description}}
+                                                {%endif%}
+
+                                                </dd>
                                             </dl>
 
                                             <div class="m-t-sm">|
+                                                {% if not order_detail %}
                                                 <a href="{% url 'remove_product_cart' product.id %}"  class="text-muted"><i class="fa fa-trash"></i> Remove item</a>
+                                                {%endif%}
                                             </div>
                                         </td>
                                         <td>
                                             <h4>
-                                                ${{product.price}}
+                                                {% if order_detail %}
+                                                    {{product.price}}
+                                                {%else%}
+                                                    {{product.product.price}}
+                                                {%endif%}
                                             </h4>
                                         </td>
                                     </tr>
@@ -76,7 +106,14 @@
 
                     <div class="ibox">
                         <div class="ibox-title">
-                            <h5>Cart Summary</h5>
+                            <h5>
+                                {% if order_detail %}
+                                    Order Summary
+                                {%else%}
+                                    Cart Summary
+                                {%endif%}
+
+                            </h5>
                         </div>
                         <div class="ibox-content">
                             <span>
@@ -90,12 +127,14 @@
                             <span class="text-muted small">
                                 *For India applicable sales tax will be applied
                             </span>
+                            {% if not order_detail %}
                             <div class="m-t-sm">
                                 <div class="btn-group">
                                 <a href="{% url 'checkout' %}" class="btn btn-primary btn-sm"><i class="fa fa-shopping-cart"></i> Checkout</a>
                                 <a href="#" class="btn btn-white btn-sm"> Cancel</a>
                                 </div>
                             </div>
+                            {% endif %}
                         </div>
                     </div>
 

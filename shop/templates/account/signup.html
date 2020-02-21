@@ -41,7 +41,8 @@
 <!--                    {{form.password2|as_crispy_field}}-->
 <!--                </div>-->
 
-
+                {{form.user_type.label}} {{form.user_type}}
+<!--                <input type="text" id="user_type" name="user_type" class="form-control" placeholder="User type" >-->
                 <input type="text" id="id_username" name="username" class="form-control" placeholder="Username" required="">
                 <input type="email" id="id_email" name="email" class="form-control" placeholder="Email(optional)" >
                 <input type="password" id="id_password1" name="password1" class="form-control" placeholder="Password" >
