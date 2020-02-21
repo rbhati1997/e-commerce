@@ -83,6 +83,7 @@ class DeliveryAddress(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4().int >> 81, editable=False)
     customer_user = models.ForeignKey(MyUser, on_delete=models.CASCADE, related_name='delivery_customer_user')
     full_name = models.CharField(max_length=250, null=True)
+    number = models.CharField(max_length=15, null=True)
     address = models.CharField(max_length=250, null=True)
     email = models.EmailField(null=True)
     postal_code = models.CharField(max_length=20, null=True)
@@ -95,7 +96,6 @@ class DeliveryAddress(models.Model):
 class Order(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4().int >> 81, editable=False)
     customer_user = models.ForeignKey(MyUser, on_delete=models.CASCADE, related_name='order_customer_user')
-    # cart_item = models.ManyToManyField(CartItem, related_name='order_cart_item', blank=True, null=True)
     product = models.ManyToManyField(Product, related_name='order_product', blank=True)
     quantity = models.IntegerField(default=0)
     delivery_address = models.ForeignKey(DeliveryAddress, on_delete=models.CASCADE, null=True, blank=True)

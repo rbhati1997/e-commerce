@@ -1,15 +1,17 @@
 from celery.task import task
-from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.views.generic import TemplateView
 from django.core.paginator import Paginator
+from django.shortcuts import get_object_or_404
+from .forms import DeliveryAddressForm
+from .helper import seller_ordered_products, global_search_bar, total_price
+from .models import Product, Cart, DeliveryAddress, Order, MyUser, CartItem
+from django.conf import settings
 
-from .helper import seller_ordered_products
-from .models import Product, Cart, DeliveryAddress, Order, CartCheckout, MyUser, OrderSeller, CartItem
-from django.conf import settings  # new
-from shop.tasks import create_seller_order
+import twilio
+import twilio.rest
 
 
 class Payment(TemplateView):
@@ -18,8 +20,6 @@ class Payment(TemplateView):
     """
     template_name = 'payment.html'
 
-    # delivery_address_id = request.session.get('delivery_address_id')
-    # delivery_address = DeliveryAddress.objects.filter(pk=delivery_address_id)
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['key'] = settings.STRIPE_PUBLISHABLE_KEY
@@ -31,18 +31,19 @@ def product_grid(request):
     Function to show a grid of products.
     :param request:
     """
-    user = MyUser.objects.get(user_id=request.user.id)
+    user = get_object_or_404(MyUser, user_id=request.user.id)
+    # When user type is customer.
     if user.user_type == 'C':
         product_list = Product.objects.all()
         if 'search' in request.GET:
-            search_term = request.GET['search']
-            product_list = product_list.filter(name__icontains=search_term)
+            product_list = global_search_bar(request.GET)
         paginator1 = Paginator(product_list, 3)
         page_number = request.GET.get('page')
         if page_number:
             products = paginator1.get_page(page_number)
         else:
             products = paginator1.get_page(1)
+    # When user type is seller.
     else:
         products = Product.objects.filter(store__seller_user=user)
 
@@ -51,7 +52,6 @@ def product_grid(request):
         'products': products,
         'grid_view': 'grid_view'
     }
-
     return render(request, 'product_grid.html', context)
 
 
@@ -78,7 +78,6 @@ def add_product_cart(request, product_id=None):
     :return:Products which added to cart by user.
     """
 
-    price = 0
     user = MyUser.objects.get(pk=request.user.id)
 
     if product_id > 0:
@@ -91,13 +90,14 @@ def add_product_cart(request, product_id=None):
             cart = Cart.objects.create(customer_user=user)
             CartItem.objects.create(product=product, cart=cart)
 
-    cart_product_list = []
+    cart_items = CartItem.objects.all()
+    price = total_price(cart_items)
 
-    for cart_product in CartItem.objects.all():
-        price += int(cart_product.product.price)
-        cart_product_list.append(cart_product)
+    if 'search' in request.GET:
+        cart_items = global_search_bar(request.GET)
+
     context = {
-        "cart_product": cart_product_list,
+        "cart_product": cart_items,
         "cart_products_price": price
     }
     return render(request, 'cart1.html', context)
@@ -109,36 +109,31 @@ def remove_product_cart(request, product_id):
     :param request:
     :param product_id:
     """
-    # import pdb;pdb.set_trace()
     CartItem.objects.get(pk=product_id).delete()
     return HttpResponseRedirect(reverse('product_cart', args=[0]))
 
 
 def checkout(request):
     """
-    Function to checkout cart products.
+    Function to checkout cart products and create delivery object.
     :param request:
     """
 
-    price = 0
     user = MyUser.objects.get(pk=request.user.id)
 
     if request.method == "POST":
-        full_name = request.POST['firstname']
-        address = request.POST['address']
-        email = request.POST['email']
-        postal_code = request.POST['zip']
-        city = request.POST['city']
-        delivery_address = DeliveryAddress.objects.create(customer_user=user, full_name=full_name, address=address,
-                                                          email=email, postal_code=postal_code, city=city)
+        form = DeliveryAddressForm(request.POST)
+        if form.is_valid():
+            delivery_address = form.save()
         request.session['delivery_address_id'] = delivery_address.id
         return HttpResponseRedirect(reverse('payment_page'))
     cart_product_list = CartItem.objects.all()
-    for cart in cart_product_list:
-        price += int(cart.product.price)
+    price = total_price(cart_product_list)
+    form = DeliveryAddressForm(initial={'customer_user': user})
     context = {
         "cart_product": cart_product_list,
-        "cart_products_price": price
+        "cart_products_price": price,
+        "form": form
     }
     return render(request, 'checkout.html', context)
 
@@ -149,8 +144,8 @@ def add_orders(request, order_id=None):
     :param order_id:
     :param request:
     """
-
     user = MyUser.objects.get(user_id=request.user.id)
+    # When user type is customer.
     if user.user_type == 'C':
         cart_items = CartItem.objects.filter(cart__customer_user=user)
         delivery_address = DeliveryAddress.objects.get(pk=request.session.get('delivery_address_id'))
@@ -160,18 +155,19 @@ def add_orders(request, order_id=None):
             for cart_item in cart_items:
                 order.product.add(cart_item.product)
                 order.save()
-
+                cart_item.delete()
         orders = Order.objects.all()
-        return render(request, 'orders.html', {"order": orders})
+        return render(request, 'orders.html', {"order": orders, "user": user})
 
+    # When user type is seller.
     else:
         orders = seller_ordered_products(user)
-
         context = {
             'user': user,
-            'products': orders
+            'order': orders
         }
-        return render(request, 'product_grid.html', context)
+
+        return render(request, 'orders.html', context)
 
 
 def delete_orders(request, order_id=None):
@@ -194,16 +190,22 @@ def order_detail(request, order_id):
     :param request:
     :param order_id:
     """
-
-    price = 0
-    order = Order.objects.get(pk=order_id)
     user = MyUser.objects.get(user_id=request.user.id)
+    price = 0
+
+    order = Order.objects.get(pk=order_id)
     products = order.product.all()
     product_list = []
+
     for product in products:
-        product_list.append(product)
+        if user.user_type == 'C':
+            product_list.append(product)
+        elif user == product.store.seller_user:
+            product_list.append(product)
+
     for cart_product in product_list:
         price += int(cart_product.price)
+
     context = {
         "cart_product": product_list,
         "cart_products_price": price,
@@ -229,3 +231,23 @@ def contact_us(request):
     :return:
     """
     return render(request, 'contact1.html')
+
+
+def send_msg(request, order_id):
+    """
+    Function to send message to customer.
+    :param order_id:
+    :return:Message
+    """
+    order = Order.objects.get(pk=order_id)
+    number = order.delivery_address.number
+    body = "your order id-{} is accepted, Thank you" \
+           "from BIGDADDYSHOP".format(order_id)
+    client = twilio.rest.Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+
+    client.messages.create(
+        body=body,
+        to='+91' + number,
+        from_=settings.TWILIO_PHONE_NUMBER
+    )
+    return HttpResponseRedirect(reverse('orders'))
