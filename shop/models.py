@@ -75,10 +75,6 @@ class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
 
 
-class CartCheckout(models.Model):
-    cart = models.ManyToManyField(Cart)
-
-
 class DeliveryAddress(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4().int >> 81, editable=False)
     customer_user = models.ForeignKey(MyUser, on_delete=models.CASCADE, related_name='delivery_customer_user')
@@ -105,12 +101,12 @@ class Order(models.Model):
         return self.uuid
 
 
-class OrderLine(models.Model):
-    uuid = models.UUIDField(default=uuid.uuid4().int >> 81, editable=False)
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_line_order')
-
-    def __int__(self):
-        return self.uuid
+# class OrderLine(models.Model):
+#     uuid = models.UUIDField(default=uuid.uuid4().int >> 81, editable=False)
+#     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_line_order')
+#
+#     def __int__(self):
+#         return self.uuid
 
 
 class Review(models.Model):
@@ -121,19 +117,7 @@ class Review(models.Model):
     review = models.TextField(blank=True)
     created = models.DateTimeField(auto_now_add=True)
 
-    def save(self, **kwargs):
-        if self.customer_user.user_type == 'S':
-            raise ValidationError({'error': 'Seller not able to give review.'})
-        super().save(**kwargs)
 
     def __int__(self):
         return self.uuid
 
-
-class OrderSeller(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE)
-    customer = models.ForeignKey(MyUser, on_delete=models.CASCADE)
-    product_seller = models.ForeignKey(Product, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.product_seller.name
