@@ -1,7 +1,6 @@
 from allauth.account.forms import SignupForm
 from django import forms
-from shop.models import DeliveryAddress
-
+from shop.models import DeliveryAddress, Product
 from shop.models import MyUser
 
 
@@ -27,3 +26,11 @@ class DeliveryAddressForm(forms.ModelForm):
         model = DeliveryAddress
         fields = "__all__"
         widgets = {'customer_user': forms.HiddenInput()}
+
+
+class ProductForm(forms.ModelForm):
+
+    class Meta:
+        model = Product
+        fields = "__all__"
+
