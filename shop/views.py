@@ -98,7 +98,8 @@ def add_product_cart(request, product_id=None):
 
     context = {
         "cart_product": cart_items,
-        "cart_products_price": price
+        "cart_products_price": price,
+        'user':user
     }
     return render(request, 'cart1.html', context)
 
@@ -133,7 +134,8 @@ def checkout(request):
     context = {
         "cart_product": cart_product_list,
         "cart_products_price": price,
-        "form": form
+        "form": form,
+        'user':user
     }
     return render(request, 'checkout.html', context)
 
@@ -221,7 +223,8 @@ def contact_us(request):
     :param request:
     :return:
     """
-    return render(request, 'contact1.html')
+    user = MyUser.objects.get(user_id=request.user.id)
+    return render(request, 'contact1.html', {'user':user})
 
 
 def send_msg(request, order_id):
@@ -252,12 +255,14 @@ def product_add(request):
     :return:
     """
     user = MyUser.objects.get(user_id=request.user.id)
+    # store = Store.objects.get(seller_user=user)
     if request.method == 'POST':
-        store = Store.objects.get(seller_user=user)
-        form = ProductForm(request.POST, instance=store)
+        form = ProductForm(request.POST)
         if form.is_valid():
             form.save()
             return HttpResponseRedirect(reverse("product_grid"))
 
+    # form = ProductForm(initial={'store': store})
     form = ProductForm()
-    return render(request, 'product_add.html', {'form':form})
+    context = {'form': form, 'user':user}
+    return render(request, 'product_add.html', context)
