@@ -5,9 +5,9 @@ from django.urls import reverse
 from django.views.generic import TemplateView
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404
-from .forms import DeliveryAddressForm
+from .forms import DeliveryAddressForm, ProductForm
 from .helper import seller_ordered_products, global_search_bar, total_price
-from .models import Product, Cart, DeliveryAddress, Order, MyUser, CartItem
+from .models import Product, Cart, DeliveryAddress, Order, MyUser, CartItem, Store
 from django.conf import settings
 
 import twilio
@@ -215,18 +215,9 @@ def order_detail(request, order_id):
     return render(request, 'cart1.html', context)
 
 
-def product_add(request):
-    """
-    Fuction to add product.
-    :param request:
-    :return:
-    """
-    return render(request, 'product_add.html')
-
-
 def contact_us(request):
     """
-    Fuction to show contact page.
+    Function to show contact page.
     :param request:
     :return:
     """
@@ -236,6 +227,7 @@ def contact_us(request):
 def send_msg(request, order_id):
     """
     Function to send message to customer.
+    :param request:
     :param order_id:
     :return:Message
     """
@@ -251,3 +243,21 @@ def send_msg(request, order_id):
         from_=settings.TWILIO_PHONE_NUMBER
     )
     return HttpResponseRedirect(reverse('orders'))
+
+
+def product_add(request):
+    """
+    Function to add product.
+    :param request:
+    :return:
+    """
+    user = MyUser.objects.get(user_id=request.user.id)
+    if request.method == 'POST':
+        store = Store.objects.get(seller_user=user)
+        form = ProductForm(request.POST, instance=store)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse("product_grid"))
+
+    form = ProductForm()
+    return render(request, 'product_add.html', {'form':form})
