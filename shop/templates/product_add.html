@@ -56,7 +56,7 @@
                                 <li class="active"><a data-toggle="tab" href="#tab-1"> Product info</a></li>
                             </ul>
                             <div class="tab-content">
-                                <form method="post" action="">
+                                <form method="post" action="" enctype="multipart/form-data">
                                     {% csrf_token %}
                                     <div id="tab-1" class="tab-pane active">
                                     <div class="panel-body">
@@ -85,6 +85,9 @@
                                             </div>
                                             <div class="form-group"><label class="col-sm-2 control-label">{{form.category.label}}:</label>
                                                 {{form.category}}
+                                            </div>
+                                            <div class="form-group">
+                                                {{form.store}}
                                             </div>
                                             <div class="form-group"><label class="col-sm-2 control-label">{{form.available.label}}:</label>
                                                 {{form.available}}

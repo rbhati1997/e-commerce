@@ -79,10 +79,16 @@
                                         {{product.description}}
                                     </div>
 
+
+                                    {% if user.user_type == 'S' %}
                                     <h4>Ordered by</h4>
                                     <div class="small text-muted">
                                         customer id - {{product.store.seller_user.id}}
                                     </div>
+                                    <div class="m-t-sm">|
+                                        <a href="{% url 'delete_product' product.id %}"  class="text-muted"><i class="fa fa-trash"></i> Remove item</a>
+                                    </div>
+                                    {%endif%}
                                     <hr>
 
                                     <div>

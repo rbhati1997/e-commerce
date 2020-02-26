@@ -1,35 +1,46 @@
 from datetime import datetime
-
-from django.core.exceptions import ValidationError
+from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 import uuid
 
 
-class MyUser(models.Model):
+# class MyUser(models.Model):
+#     TYPE_CHOICE = (
+#         ('A', 'Admin'),
+#         ('S', 'Seller'),
+#         ('C', 'Customer')
+#     )
+#     user = models.OneToOneField(User, on_delete=models.CASCADE)
+#     user_type = models.CharField(max_length=2, choices=TYPE_CHOICE, default='A')
+#
+#     def __str__(self):
+#         return self.user_type
+
+class MyUser(AbstractUser):
     TYPE_CHOICE = (
-        ('A', 'Admin'),
         ('S', 'Seller'),
         ('C', 'Customer')
     )
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    user_type = models.CharField(max_length=2, choices=TYPE_CHOICE, default='A')
+    user_type = models.CharField(max_length=2, choices=TYPE_CHOICE, default='S')
+    is_customer = models.BooleanField(default=False)
+    is_seller = models.BooleanField(default=False)
+
+    class Meta:
+        permissions = (
+            ("can_message", "Can send message"),
+        )
 
     def __str__(self):
-        return self.user_type
+        return self.username
 
 
 class Store(models.Model):
-    seller_user = models.OneToOneField(MyUser, on_delete=models.CASCADE, related_name='store_seller_user')
-
-    def save(self, **kwargs):
-        if self.seller_user.user_type == 'C':
-            raise ValidationError({'error': 'Customer not able to choose a store.'})
-        super().save(**kwargs)
+    seller_user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='store_seller_user')
 
     def __str__(self):
-        return self.seller_user.user.username
+        return self.seller_user.username
 
 
 class Product(models.Model):
@@ -57,13 +68,13 @@ class Product(models.Model):
 
 
 class Cart(models.Model):
-    customer_user = models.OneToOneField(MyUser, on_delete=models.CASCADE, related_name='cart_customer_user')
+    customer_user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='cart_customer_user')
     created_at = models.DateTimeField(default=datetime.now)
 
-    def save(self, **kwargs):
-        if self.customer_user.user_type == 'S':
-            raise ValidationError({'error': 'Seller not able to add product in cart.'})
-        super().save(**kwargs)
+    class Meta:
+        permissions = (
+            ("can_checkout", "Can checkout"),
+        )
 
     def __int__(self):
         return self.uuid
@@ -77,7 +88,7 @@ class CartItem(models.Model):
 
 class DeliveryAddress(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4().int >> 81, editable=False)
-    customer_user = models.ForeignKey(MyUser, on_delete=models.CASCADE, related_name='delivery_customer_user')
+    customer_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='delivery_customer_user')
     full_name = models.CharField(max_length=250, null=True)
     number = models.CharField(max_length=15, null=True)
     address = models.CharField(max_length=250, null=True)
@@ -91,7 +102,7 @@ class DeliveryAddress(models.Model):
 
 class Order(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4().int >> 81, editable=False)
-    customer_user = models.ForeignKey(MyUser, on_delete=models.CASCADE, related_name='order_customer_user')
+    customer_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='order_customer_user')
     product = models.ManyToManyField(Product, related_name='order_product', blank=True)
     quantity = models.IntegerField(default=0)
     delivery_address = models.ForeignKey(DeliveryAddress, on_delete=models.CASCADE, null=True, blank=True)
@@ -101,23 +112,13 @@ class Order(models.Model):
         return self.uuid
 
 
-# class OrderLine(models.Model):
-#     uuid = models.UUIDField(default=uuid.uuid4().int >> 81, editable=False)
-#     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_line_order')
-#
-#     def __int__(self):
-#         return self.uuid
-
-
 class Review(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4().int >> 81, editable=False)
-    customer_user = models.ForeignKey(MyUser, on_delete=models.CASCADE, related_name='review_customer_user')
+    customer_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='review_customer_user')
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     rate = models.IntegerField(default=10, validators=[MaxValueValidator(10), MinValueValidator(1)])
     review = models.TextField(blank=True)
     created = models.DateTimeField(auto_now_add=True)
 
-
     def __int__(self):
         return self.uuid
-

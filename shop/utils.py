@@ -1,6 +1,14 @@
-from shop.models import Order, Product, CartItem
+from shop.models import Order, Product, CartItem, MyUser
 from django.db.models import Q
 from itertools import chain
+
+
+def get_user(request):
+    """
+    Function to fetch current user.
+    :return:
+    """
+    return MyUser.objects.get(pk=request.user.id)
 
 
 def seller_ordered_products(user):

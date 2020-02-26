@@ -90,14 +90,16 @@
                                         <span class="label label-primary">Pending</span>
                                         {%endif%}
                                     </td>
-                                    {% if user.user_type == 'C' %}
+
                                     <td class="text-right">
                                         <div class="btn-group">
-                                             <a href="{% url 'order_detail' order1.id %}"  class="text-muted"> View</a>
+                                             <a href="{% url 'order_detail' order1.id %}"  class="badge badge-pill badge-success"> View</a>
+                                            {% if user.user_type == 'C' %}
                                             <a href="{% url 'delete_order' order1.id %}"  class="text-muted"> Delete</a>
+                                            {%endif%}
                                         </div>
                                     </td>
-                                    {%endif%}
+
                                 </tr>
                                 {%endfor%}
                                 </tbody>

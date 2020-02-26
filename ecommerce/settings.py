@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+
     'shop',
     'django_extensions',
     'django.contrib.sites',
@@ -46,7 +47,9 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.github',
 
     'crispy_forms',
-    'silk'
+    'silk',
+
+    'service_objects',
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
@@ -100,15 +103,15 @@ SITE_ID = 1
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'shop_db',
+        'NAME': 'shop_db1',
         'USER': 'root',
         'PASSWORD': 'root',
     },
-    # 'users11': {
+    # 'db_1': {
     #     'ENGINE': 'django.db.backends.mysql',
-    #     'NAME': 'user_db',
-    #     'USER': 'rohit',
-    #     'PASSWORD': 'rohit',
+    #     'NAME': 'shop_db1',
+    #     'USER': 'root',
+    #     'PASSWORD': 'root',
     # }
 }
 
@@ -175,9 +178,10 @@ CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'
 
-
 # Twillo
 TWILIO_ACCOUNT_SID = 'AC39d1b43a808c206d1f1f827471b1d5c8'
 TWILIO_AUTH_TOKEN = '6da1352c43e07e776ef271e882473c1f'
 TWILIO_PHONE_NUMBER = '+12034578461'
 
+# Abstract user :
+AUTH_USER_MODEL = 'shop.MyUser'

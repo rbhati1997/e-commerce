@@ -28,7 +28,13 @@
                             <img alt="image" class="img-circle" src="img/profile_small.jpg" />
                              </span>
                             <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+
                             <span class="clear"> <span class="block m-t-xs"> <strong class="font-bold">Rohit Bhati</strong>
+                            {% if user.user_type == 'C' %}
+                            <span class="clear"> <span class="block m-t-xs"> <strong class="font-bold">Customer</strong>
+                            {%else%}
+                            <span class="clear"> <span class="block m-t-xs"> <strong class="font-bold">Seller</strong>
+                            {%endif%}
                              </span> <span class="text-muted text-xs block">Art Director <b class="caret"></b></span> </span> </a>
                             <ul class="dropdown-menu animated fadeInRight m-t-xs">
                                 <li><a href="profile.html">Profile</a></li>
@@ -49,12 +55,13 @@
 
                             <a href="{% url 'product_grid' %}"> <i class="fa fa-diamond"></i><span class="nav-label">Products grid</span></a>
                             <a href="{% url 'orders_id' 1%}"><i class="fa fa-diamond"></i> <span class="nav-label">My orders</span></a>
-
+                         {% if user.user_type == 'S' %}
                         <a href="{% url 'product_add' %}"><i class="fa fa-diamond"></i> <span class="nav-label">Products add</span></a>
-
+                        {% endif %}
+                        {% if user.user_type == 'C' %}
                         <a href="{% url 'product_cart' 0 %}"><i class="fa fa-diamond"></i> <span class="nav-label">Cart</span></a>
                         <a href="Review.html"><i class="fa fa-diamond"></i> <span class="nav-label">Review</span></a>
-      
+                        {% endif %}
                         <a href="{% url 'contact_us' %}"><i class="fa fa-diamond"></i> <span class="nav-label">Contact us</span></a>
                     </li>
 

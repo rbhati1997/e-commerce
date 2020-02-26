@@ -38,3 +38,29 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
 </body>
 </html>
+
+
+
+
+
+
+def save(self,request):
+    profile = super(SignupFormC,self).save(request)
+    profile.first_name = self.cleaned_data['first_name']
+    profile.last_name = self.cleaned_data['last_name']
+    profile.phone = self.cleaned_data['phone']
+    if request.POST['profile_type'] is 'C':
+        group = Group.objects.get(name="Customer Permission")
+        group.user_set.add(profile)
+        profile.is_customer = True
+    else:
+        group = Group.objects.get(name="Provider Permission")
+        group.user_set.add(profile)
+        profile.is_provider = True
+    profile.save()
+
+    return profile
+
+
+
+
