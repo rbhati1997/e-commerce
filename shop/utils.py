@@ -18,10 +18,12 @@ def seller_ordered_products(user):
     :return: Orders.
     """
     orders_list = []
+
     for order in Order.objects.all():
         for product in order.product.all():
             if user == product.store.seller_user:
                 orders_list.append(order)
+
     return set(orders_list)
 
 

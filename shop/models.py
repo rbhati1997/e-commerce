@@ -4,19 +4,9 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 import uuid
+from django.http import request
+from guardian.shortcuts import assign_perm
 
-
-# class MyUser(models.Model):
-#     TYPE_CHOICE = (
-#         ('A', 'Admin'),
-#         ('S', 'Seller'),
-#         ('C', 'Customer')
-#     )
-#     user = models.OneToOneField(User, on_delete=models.CASCADE)
-#     user_type = models.CharField(max_length=2, choices=TYPE_CHOICE, default='A')
-#
-#     def __str__(self):
-#         return self.user_type
 
 class MyUser(AbstractUser):
     TYPE_CHOICE = (
@@ -85,6 +75,13 @@ class CartItem(models.Model):
     quantity = models.IntegerField(default=1)
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
 
+    def save(self, *args, **kwargs):
+        user = kwargs['request'].user
+        super(CartItem, self).save(*args)
+        assign_perm('view_cartitem', user, self)
+        assign_perm('delete_cartitem', user, self)
+        return self
+
 
 class DeliveryAddress(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4().int >> 81, editable=False)
@@ -107,6 +104,13 @@ class Order(models.Model):
     quantity = models.IntegerField(default=0)
     delivery_address = models.ForeignKey(DeliveryAddress, on_delete=models.CASCADE, null=True, blank=True)
     date_added = models.DateTimeField(auto_now_add=True, null=True)
+
+    def save(self, *args, **kwargs):
+        user = kwargs['request'].user
+        super(Order, self).save(*args)
+        assign_perm('view_order', user, self)
+        assign_perm('delete_order', user, self)
+        return self
 
     def __int__(self):
         return self.uuid

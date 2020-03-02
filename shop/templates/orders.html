@@ -82,11 +82,11 @@
                                         {{order1.date_added}}
                                     </td>
                                     <td>
-                                        {% if user.user_type == 'S'%}
+                                        {% if user.is_seller%}
                                         <a href="{% url 'send_message' order1.id %}"  class="text-muted"> Accept</a>
                                         <a href=""  class="text-muted"> Decline</a>
                                         {%endif%}
-                                        {% if user.user_type == 'C' %}
+                                        {% if user.is_customer%}
                                         <span class="label label-primary">Pending</span>
                                         {%endif%}
                                     </td>
@@ -94,7 +94,7 @@
                                     <td class="text-right">
                                         <div class="btn-group">
                                              <a href="{% url 'order_detail' order1.id %}"  class="badge badge-pill badge-success"> View</a>
-                                            {% if user.user_type == 'C' %}
+                                            {% if user.is_customer %}
                                             <a href="{% url 'delete_order' order1.id %}"  class="text-muted"> Delete</a>
                                             {%endif%}
                                         </div>

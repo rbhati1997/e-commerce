@@ -79,11 +79,11 @@
                                 <small class="text-muted">{{product.category}}</small>
                                 <a href="#" class="product-name"> {{product.name}}</a>
                                 <div class="m-t text-righ">
-                                    {% if user.user_type == 'C' %}
+                                    {% if user.is_customer %}
                                         {%if grid_view %}
                                         <a href="{% url 'product_detail' product.id %}" class="btn btn-xs btn-outline btn-primary">Info <i class="fa fa-long-arrow-right"></i> </a>
                                          {% endif%}
-                                    {% elif user.user_type == 'S' and grid_view %}
+                                    {% elif user.is_seller and grid_view %}
                                         <a href="{% url 'product_detail' product.id %}" class="btn btn-xs btn-outline btn-primary">Info <i class="fa fa-long-arrow-right"></i> </a>
                                     {% else %}
                                     <a href="{% url 'product_detail' product.id %}" class="btn btn-xs btn-outline btn-primary">Info <i class="fa fa-long-arrow-right"></i> </a>

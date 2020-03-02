@@ -80,7 +80,7 @@
                                     </div>
 
 
-                                    {% if user.user_type == 'S' %}
+                                    {% if user.is_seller %}
                                     <h4>Ordered by</h4>
                                     <div class="small text-muted">
                                         customer id - {{product.store.seller_user.id}}
@@ -92,7 +92,7 @@
                                     <hr>
 
                                     <div>
-                                        {% if user.user_type == 'C' %}
+                                        {% if user.is_customer %}
                                             <a href="{% url 'product_cart' product.id %}" class="btn btn-xs btn-outline btn-primary">Add to cart <i class="fa fa-long-arrow-right"></i> </a>
                                         {% endif %}
 <!--                                        <div class="btn-group">-->

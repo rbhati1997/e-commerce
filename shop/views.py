@@ -1,12 +1,13 @@
 from celery.task import task
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.http.request import QueryDict
 from django.shortcuts import render
 from django.urls import reverse
 from django.views.generic import TemplateView
 from .forms import ProductForm
 from .services import ProductGridService, ProductDetailService, AddProductCartService, RemoveProductCartService, \
-    CheckoutService, AddOrderService, DeleteOrderService
+    CheckoutService, AddOrderService, DeleteOrderService, OrderDetailService, DeleteProductService, AddProductService, \
+    ShowProductCartService, ShowSellerOrderService
 from .utils import get_user
 from .models import Product, Cart, DeliveryAddress, Order, MyUser, CartItem, Store
 from django.conf import settings
@@ -48,7 +49,39 @@ def product_detail(request, pk):
     :param pk:
     """
     context = ProductDetailService.execute({'pk': pk, 'request': request})
-    return render(request, 'product_detail1.html', context)
+    if context['permission']:
+        return render(request, 'product_detail1.html', context)
+    return HttpResponse('Sorry you dont have permission to view this object')
+
+
+@login_required
+@permission_required('shop.add_product', raise_exception=True)
+def product_add(request):
+    """
+    Function to add product.
+    :param request:
+    :return:
+    """
+    context = AddProductService.execute({'request': request})
+    if context["user"]:
+        return render(request, 'product_add.html', context)
+    return HttpResponseRedirect(reverse("product_grid"))
+
+
+@login_required
+@permission_required('shop.delete_product', raise_exception=True)
+def delete_product(request, product_id):
+    """
+    Function to delete a product.
+    :param product_id:
+    :param request:
+    """
+    user = get_user(request)
+    context = DeleteProductService.execute({'user': user, 'product_id': product_id})
+    if context['permission']:
+        context['product'].delete()
+        return HttpResponseRedirect(reverse("product_grid"))
+    return HttpResponse('Sorry you dont have permission to delete this object:-{}'.format(product_id))
 
 
 @login_required
@@ -66,6 +99,18 @@ def add_product_cart(request, product_id=None):
 
 
 @login_required
+@permission_required('shop.add_cart', raise_exception=True)
+def show_product_cart(request):
+    """
+    Function to show cart items.
+    :param request:
+    :return:Products which added to cart by user.
+    """
+    context = ShowProductCartService.execute({'request': request})
+    return render(request, 'cart1.html', context)
+
+
+@login_required
 @permission_required('shop.delete_cart', raise_exception=True)
 def remove_product_cart(request, product_id):
     """
@@ -73,8 +118,12 @@ def remove_product_cart(request, product_id):
     :param request:
     :param product_id:
     """
-    RemoveProductCartService.execute({'product_id': product_id})
-    return HttpResponseRedirect(reverse('product_cart', args=[0]))
+    user = get_user(request)
+    context = RemoveProductCartService.execute({'product_id': product_id, 'user': user})
+    if context['permission']:
+        context['cart_item'].delete()
+        return HttpResponseRedirect(reverse('product_cart', args=[0]))
+    return HttpResponse('Sorry you dont have permission to delete this object:-{}'.format(product_id))
 
 
 @login_required
@@ -93,15 +142,19 @@ def checkout(request):
 
 @login_required
 @permission_required('shop.view_order', raise_exception=True)
-def add_orders(request, order_id=None):
+def add_orders(request):
     """
     Function to add order.
-    :param order_id:
     :param request:
     """
-    context = AddOrderService.execute({'request': request, 'order_id': order_id})
-    if context['user'].is_customer:
-        return render(request, 'orders.html', context)
+    context = AddOrderService.execute({'request': request})
+    return render(request, 'orders.html', context)
+
+
+@login_required
+@permission_required('shop.view_order', raise_exception=True)
+def show_seller_order(request):
+    context = ShowSellerOrderService.execute({'request': request})
     return render(request, 'orders.html', context)
 
 
@@ -113,8 +166,10 @@ def delete_orders(request, order_id=None):
     :param order_id:
     :param request:
     """
-    DeleteOrderService.execute({'order_id': order_id})
-    return HttpResponseRedirect(reverse('orders_id', args=[1]))
+    context = DeleteOrderService.execute({'order_id': order_id, 'request': request})
+    if context['delete'] is None:
+        return HttpResponse('Sorry you dont have permission to delete order no.-{}'.format(order_id))
+    return HttpResponseRedirect(reverse('show_orders'))
 
 
 @login_required
@@ -124,28 +179,9 @@ def order_detail(request, order_id):
     :param request:
     :param order_id:
     """
-    user = get_user(request)
-    price = 0
-
-    order = Order.objects.get(pk=order_id)
-    products = order.product.all()
-    product_list = []
-
-    for product in products:
-        if user.is_customer:
-            product_list.append(product)
-        elif user == product.store.seller_user:
-            product_list.append(product)
-
-    for cart_product in product_list:
-        price += int(cart_product.price)
-
-    context = {
-        "cart_product": product_list,
-        "cart_products_price": price,
-        "order_detail": "order detail",
-        "user": user
-    }
+    context = OrderDetailService.execute({'request': request, 'order_id': order_id})
+    if context['user'] is None:
+        return HttpResponse('Sorry you dont have permission to see  order id-{}.'.format(order_id))
     return render(request, 'cart1.html', context)
 
 
@@ -181,37 +217,3 @@ def send_msg(request, order_id):
         from_=settings.TWILIO_PHONE_NUMBER
     )
     return HttpResponseRedirect(reverse('orders'))
-
-
-@login_required
-@permission_required('shop.add_product', raise_exception=True)
-def product_add(request):
-    """
-    Function to add product.
-    :param request:
-    :return:
-    """
-    user = get_user(request)
-    store = Store.objects.get_or_create(seller_user=user)
-    if request.method == 'POST':
-        form = ProductForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse("product_grid"))
-
-    form = ProductForm(initial={'store': store})
-    context = {'form': form, 'user': user}
-    return render(request, 'product_add.html', context)
-
-
-@login_required
-@permission_required('shop.delete_product', raise_exception=True)
-def delete_product(request, product_id):
-    """
-    Function to delete a product.
-    :param product_id:
-    :param request:
-    """
-    product = Product.objects.get(pk=product_id)
-    product.delete()
-    return HttpResponseRedirect(reverse("product_grid"))
