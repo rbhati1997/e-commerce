@@ -4,12 +4,11 @@ from django.http.request import QueryDict
 from django.shortcuts import render
 from django.urls import reverse
 from django.views.generic import TemplateView
-from .forms import ProductForm
 from .services import ProductGridService, ProductDetailService, AddProductCartService, RemoveProductCartService, \
     CheckoutService, AddOrderService, DeleteOrderService, OrderDetailService, DeleteProductService, AddProductService, \
     ShowProductCartService, ShowSellerOrderService
 from .utils import get_user
-from .models import Product, Cart, DeliveryAddress, Order, MyUser, CartItem, Store
+from .models import Order, MyUser
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 import twilio

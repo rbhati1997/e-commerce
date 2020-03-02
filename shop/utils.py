@@ -36,10 +36,7 @@ def global_search_bar(request):
     search_term = request['search']
     product = Product.objects.filter(
         Q(name__icontains=search_term) | Q(category__icontains=search_term) | Q(description__icontains=search_term))
-    cart_item = CartItem.objects.filter(
-        Q(product__name__icontains=search_term) | Q(product__category__icontains=search_term) | Q(
-            product__description__icontains=search_term))
-    return chain(cart_item, product)
+    return product
 
 
 def total_price(products):

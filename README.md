@@ -1,6 +1,6 @@
 Django Ecommerce
 -
-This is an ecommerce website built with Django. The website displays products. Users can add and remove products to/from their cart while also specifying the quantity of each item.
+This is an ecommerce website built with Django. The website displays products. Users can add and remove products to/from their cart. User can also order item.
 
 Built with
 -
@@ -17,6 +17,7 @@ Installation
     1. Create & Activate a new Virtual Environment in terminal: Create: $ python3 -m venv ~/virtualenvs/name_of_environment 
     2. Activate: $ source ~/virtualenvs/name_of_environment/bin/activate
     3. Install the project dependancies: $ pip install -r requirements.txt
+    
     
 Running the tests
 -

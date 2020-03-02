@@ -1,5 +1,4 @@
 from django.core.paginator import Paginator
-from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from service_objects.services import Service
 from shop.forms import DeliveryAddressForm, ProductForm
@@ -222,8 +221,7 @@ class DeleteOrderService(Service):
     def process(self):
         request = self.data['request']
         user = get_user(request)
-        order_id = self.data['order_id']
-        order = Order.objects.get(pk=order_id)
+        order = Order.objects.get(pk=self.data['order_id'])
         if not user.has_perm('delete_order', order):
             return {'delete':None}
         order.delete()
