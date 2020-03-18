@@ -4,7 +4,6 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 import uuid
-from django.http import request
 from guardian.shortcuts import assign_perm
 
 
@@ -41,7 +40,6 @@ class Product(models.Model):
         ('LAP', 'laptops'),
         ('WTC', 'watches'),
     )
-    uuid = models.UUIDField(default=uuid.uuid4().int >> 81, editable=False)
     store = models.ForeignKey(Store, on_delete=models.CASCADE, related_name='product_store', null=True)
     category = models.CharField(max_length=3, choices=CATEGORY_CHOICE, default=None)
     name = models.CharField(max_length=100)
@@ -67,24 +65,23 @@ class Cart(models.Model):
         )
 
     def __int__(self):
-        return self.uuid
+        return self.id
 
 
 class CartItem(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.PROTECT)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.IntegerField(default=1)
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
 
-    def save(self, *args, **kwargs):
-        user = kwargs['request'].user
-        super(CartItem, self).save(*args)
-        assign_perm('view_cartitem', user, self)
-        assign_perm('delete_cartitem', user, self)
-        return self
+    # def save(self, *args, **kwargs):
+    #     user = kwargs['request'].user
+    #     super(CartItem, self).save(*args)
+    #     assign_perm('view_cartitem', user, self)
+    #     assign_perm('delete_cartitem', user, self)
+    #     return self
 
 
 class DeliveryAddress(models.Model):
-    uuid = models.UUIDField(default=uuid.uuid4().int >> 81, editable=False)
     customer_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='delivery_customer_user')
     full_name = models.CharField(max_length=250, null=True)
     number = models.CharField(max_length=15, null=True)
@@ -98,31 +95,18 @@ class DeliveryAddress(models.Model):
 
 
 class Order(models.Model):
-    uuid = models.UUIDField(default=uuid.uuid4().int >> 81, editable=False)
     customer_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='order_customer_user')
     product = models.ManyToManyField(Product, related_name='order_product', blank=True)
     quantity = models.IntegerField(default=0)
     delivery_address = models.ForeignKey(DeliveryAddress, on_delete=models.CASCADE, null=True, blank=True)
     date_added = models.DateTimeField(auto_now_add=True, null=True)
 
-    def save(self, *args, **kwargs):
-        user = kwargs['request'].user
-        super(Order, self).save(*args)
-        assign_perm('view_order', user, self)
-        assign_perm('delete_order', user, self)
-        return self
+    # def save(self, *args, **kwargs):
+    #     user = kwargs['request'].user
+    #     super(Order, self).save(*args)
+    #     assign_perm('view_order', user, self)
+    #     assign_perm('delete_order', user, self)
+    #     return self
 
     def __int__(self):
-        return self.uuid
-
-
-class Review(models.Model):
-    uuid = models.UUIDField(default=uuid.uuid4().int >> 81, editable=False)
-    customer_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='review_customer_user')
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    rate = models.IntegerField(default=10, validators=[MaxValueValidator(10), MinValueValidator(1)])
-    review = models.TextField(blank=True)
-    created = models.DateTimeField(auto_now_add=True)
-
-    def __int__(self):
-        return self.uuid
+        return self.id

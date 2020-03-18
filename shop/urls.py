@@ -1,26 +1,21 @@
-from django.urls import path
-from .views import product_detail, product_grid, add_product_cart, remove_product_cart, product_add, contact_us, \
-    checkout, add_orders, delete_orders, order_detail, Payment, send_msg, delete_product, show_product_cart, \
-    show_seller_order
+from django.urls import path, include
+from shop import views
+from rest_framework.routers import DefaultRouter
+
+router = DefaultRouter()
+router.register(r'cart_item', views.CartItemAViewSet, basename='cart_item')
+router.register(r'delivery_address', views.DeliveryAddressModelViewSet, basename='delivery_address')
+router.register(r'order_detail', views.OrderDetail, basename='order_detail')
+
 
 urlpatterns = [
-    path('product/cart/checkout/payment/', Payment.as_view(), name='payment_page'),
-    path('products/', product_grid, name='product_grid'),
-    path('product/<int:pk>/', product_detail, name='product_detail'),
-    path('product_add/', product_add, name='product_add'),
-    path('delete_product/<int:product_id>/', delete_product, name='delete_product'),
-    path('product/<int:product_id>/cart/', add_product_cart, name='product_cart'),
-    path('show_cart_items/', show_product_cart, name='show_product_cart'),
-    path('order/<int:order_id>/', order_detail, name='order_detail'),
-    path('remove_cart_product/<int:product_id>/', remove_product_cart, name='remove_product_cart'),
-    path('contact_us/', contact_us, name="contact_us"),
-    path('product/cart/checkout/', checkout, name="checkout"),
-    path('orders/', add_orders, name="orders"),
-    path('show_order/', show_seller_order, name="show_orders"),
-    path('delete_orders/<int:order_id>/', delete_orders, name="delete_order"),
-    path('delete_orders/', delete_orders, name="delete_orders"),
-    path('send_message/<int:order_id>/accepted_order/', send_msg, name="send_message"),
-
+    path('users/', views.UserListDetailView.as_view(), name="users"),
+    path('user/<int:user_id>/store/', views.StoreListView.as_view(), name="store"),
+    path('user/<int:user_id>/store/<int:store_id>/product/', views.ProductListView.as_view(), name="products"),
+    path('product/<int:product_id>/', views.ProductDetailView.as_view(), name="product"),
+    path('user/<int:user_id>/cart/', views.CartAPIView.as_view(), name="cart"),
+    # path('user/<int:user_id>/cart/<int:cart_id>/cart_item/', views.CartItemAPIView.as_view(), name="cart_item"),
+    path('api/', include(router.urls)),
+    path('order/', views.OrderList.as_view(), name='order_list'),
 ]
-
 

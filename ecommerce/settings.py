@@ -52,6 +52,8 @@ INSTALLED_APPS = [
     'service_objects',
 
     'guardian',
+
+    'rest_framework'
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
@@ -136,6 +138,12 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 2
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
