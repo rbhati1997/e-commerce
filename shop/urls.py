@@ -1,6 +1,7 @@
 from django.urls import path, include
 from shop import views
 from rest_framework.routers import DefaultRouter
+from rest_framework.authtoken.views import obtain_auth_token
 
 router = DefaultRouter()
 router.register(r'cart_item', views.CartItemAViewSet, basename='cart_item')
@@ -17,5 +18,9 @@ urlpatterns = [
     # path('user/<int:user_id>/cart/<int:cart_id>/cart_item/', views.CartItemAPIView.as_view(), name="cart_item"),
     path('api/', include(router.urls)),
     path('order/', views.OrderList.as_view(), name='order_list'),
+
+    path('api_token_auth/', obtain_auth_token, name='obtain_auth_token'),
+    path('rest_auth/', include('rest_auth.urls')),
+    path('rest-auth/registration/', include('rest_auth.registration.urls'))
 ]
 

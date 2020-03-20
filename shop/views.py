@@ -11,6 +11,8 @@ from shop.serializers import ProductSerializer, MyUserSerializer, StoreSerialize
     CreateStoreSerializer, ProductUpdateSerializer, CartListSerializer, CartDetailSerializer, \
     CartItemDetailSerializer, DeliveryAddressSerializer, OrderSerializer, OrderUpdateSerializer
 from shop.services import CreateStoreViewService, CreateCartItemViewService
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
 
 class UserListDetailView(APIView):
@@ -69,9 +71,12 @@ class ProductListView(APIView):
     """
     pagination_class = api_settings.DEFAULT_PAGINATION_CLASS
     paginator = pagination_class()
+    # authentication_classes = [SessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated,]
 
     @classmethod
     def get(cls, request, user_id, store_id) -> Response:
+        import pdb;pdb.set_trace()
         product_list = Product.objects.filter(store_id=store_id)
         products = cls.paginator.paginate_queryset(product_list, request)
         serializer = ProductSerializer(products, many=True)
@@ -252,7 +257,7 @@ class OrderDetail(viewsets.ModelViewSet):
         serializer = OrderUpdateSerializer(self.get_object(), data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
-            return Response({"updated":"success for order id-{}".format(pk)}, status.HTTP_200_OK)
+            return Response({"updated": "success for order id-{}".format(pk)}, status.HTTP_200_OK)
         # return Response(serializer.errors)
 
     @action(detail=True, methods=["delete"])
